@@ -1,5 +1,7 @@
 # Imagefly
 
+This module is fork of [Bodom78/kohana-imagefly](https://github.com/Bodom78/kohana-imagefly)
+
 This module allows you to quickly create resized / cropped images directly through url parameters.  
 Modified images are cached after the initial request and served up thereafter to help reduce server strain.
 
