@@ -40,13 +40,15 @@ class ImageFly
     protected $source_file = NULL;
     
     /**
-     * @var  array       Stores the URL params in the following format
-     */
+    * @var  array       Stores the URL params in the following format
+    */
     protected $url_params = array(
-        'w' => NULL,  // Width (int)
-        'h' => NULL,  // Height (int)
-        'c' => FALSE, // Crop (bool)
-        'q' => NULL   // Quality (int)
+       'w' => NULL,  // Width (int)
+       'h' => NULL,  // Height (int)
+       'c' => FALSE, // Crop (bool)
+       'x' => NULL, // Crop offset_x (int),
+       'y' => NULL, // Crop offset_y (int)
+       'q' => NULL   // Quality (int)
     );
     
     /**
@@ -190,7 +192,7 @@ class ImageFly
             }
             elseif (key_exists($name, $this->url_params))
             {
-                // Remaining expected params (w, h, q)
+                // Remaining expected params (w, h, q, x, y)
                 $this->url_params[$name] = $value;
             }
             else
@@ -265,14 +267,26 @@ class ImageFly
     /**
      * Creates a cached cropped/resized version of the file
      */
+    /**
+     * Creates a cached cropped/resized version of the file
+     */
     private function _create_cached()
     {
-        if($this->url_params['c'])
+        if($this->url_params['c'] AND !is_null($this->url_params['x']) AND !is_null($this->url_params['y']))
+        {
+            // Crop using offset_x and offest_y params
+            $this->image->crop($this->url_params['w'], $this->url_params['h'], $this->url_params['x'], $this->url_params['y']);
+            
+            // Resize to highest width or height with overflow on the larger side
+            $this->image->resize($this->url_params['w'], $this->url_params['h'], Image::INVERSE);
+        }
+        elseif($this->url_params['c'])
         {
             // Resize to highest width or height with overflow on the larger side
             $this->image->resize($this->url_params['w'], $this->url_params['h'], Image::INVERSE);
             
             // Crop any overflow from the larger side
+            //$this->image->crop($this->url_params['w'], $this->url_params['h'], $this->url_params['x'], $this->url_params['y']);
             $this->image->crop($this->url_params['w'], $this->url_params['h']);
         }
         else
